@@ -1,0 +1,12 @@
+dotenv
+requests
+bs4 
+pdfplumber
+langchain-community
+langchain
+langchain-groq
+langchain-ollama
+faiss-cpu
+streamlit
+fastapi
+uvicorn
