@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 
 from langchain_community.document_loaders import PDFPlumberLoader, WebBaseLoader
 from langchain_ollama import OllamaEmbeddings
@@ -11,7 +12,11 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from langchain.chains import RetrievalQA
 from langchain_groq import ChatGroq
+from langchain.prompts import PromptTemplate
 from langchain.schema import StrOutputParser
+
+import asyncio
+
 
 load_dotenv()
 groq_api_key = os.getenv("GROQ_API_KEY")
@@ -22,12 +27,11 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["http://localhost:3000"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 class Query(BaseModel):
     query: str
@@ -54,13 +58,11 @@ def load_pdf_and_web_data():
         "https://en.wikipedia.org/wiki/Olympic_Games",
     ]
 
-
     web_loader = WebBaseLoader(
         urls,
         header_template={"User-Agent": "SportsChatbot/1.0 (contact: k.abinan20@gmail.com)"}
     )
     web_data = web_loader.load()
-
 
     pdf_files = glob.glob("sports_data/*.pdf")
     pdf_data = []
@@ -75,25 +77,49 @@ def split_documents(documents):
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=500)
     return text_splitter.split_documents(documents)
 
-
-def create_vector_store(split_docs):
+def create_or_load_vector_store(split_docs, persist_dir="vector_store"):
     embeddings = OllamaEmbeddings(model="nomic-embed-text")
-    return FAISS.from_documents(split_docs, embeddings)
+    if os.path.exists(persist_dir):
+        return FAISS.load_local(persist_dir, embeddings, allow_dangerous_deserialization=True)
+
+    vector_store = FAISS.from_documents(split_docs, embeddings)
+    vector_store.save_local(persist_dir)
+    return vector_store
 
 def create_qa_chain():
     documents = load_pdf_and_web_data()
     split_docs = split_documents(documents)
-    vector_store = create_vector_store(split_docs)
+    vector_store = create_or_load_vector_store(split_docs)
 
-    retriever = vector_store.as_retriever(search_type="similarity", search_kwargs={"k": 3})
-    llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0.7, max_tokens=1500)
-    
+    retriever = vector_store.as_retriever(
+        search_type="mmr",
+        search_kwargs={"k": 5, "fetch_k": 10}
+    )
+
+    llm = ChatGroq(
+        model="llama-3.3-70b-versatile",
+        temperature=0.7,
+        max_tokens=1500,
+        streaming=True  
+    )
+
+    prompt = PromptTemplate(
+        template="""You are a knowledgeable sports assistant. 
+Answer the following question clearly and concisely. 
+If you use sources, mention them briefly.
+
+Question: {question}
+Context: {context}
+Answer:""",
+        input_variables=["question", "context"],
+    )
 
     qa_chain = RetrievalQA.from_chain_type(
         llm=llm,
         chain_type="stuff",
         retriever=retriever,
-        return_source_documents=True
+        chain_type_kwargs={"prompt": prompt},
+        return_source_documents=True,
     )
     return qa_chain
 
@@ -101,15 +127,34 @@ def create_qa_chain():
 qa_chain = create_qa_chain()
 
 
+@app.post("/chat/stream")
+async def chat_stream(query: Query):
+    response = qa_chain({"query": query.query}, return_only_outputs=False)
+
+    async def event_generator():
+        parser = StrOutputParser()
+        for chunk in response:
+            if "result" in chunk:
+                yield parser.parse(chunk["result"])
+
+    return StreamingResponse(event_generator(), media_type="text/plain")
+
+
 @app.post("/chat")
 async def chat_endpoint(query: Query):
     response = qa_chain({"query": query.query})
 
     parser = StrOutputParser()
-    answer = parser.parse(response['result'])
+    answer = parser.parse(response["result"])
 
-    sources = [doc.metadata.get("source") for doc in response['source_documents']]
-    
+    if not response["source_documents"]:
+        return {"answer": "Sorry, I couldn’t find anything relevant.", "sources": []}
+
+    sources = [
+        {"source": doc.metadata.get("source", "Unknown")}
+        for doc in response["source_documents"]
+    ]
+
     return {
         "answer": answer,
         "sources": sources
