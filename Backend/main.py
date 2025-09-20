@@ -86,6 +86,9 @@ def load_pdf_and_web_data():
         "https://en.wikipedia.org/wiki/Tennis",
         "https://en.wikipedia.org/wiki/Golf",
         "https://en.wikipedia.org/wiki/Rugby_union",
+        "https://en.wikipedia.org/wiki/2025_Indian_Premier_League",
+        "https://freakcricket.com/ipl",
+        "https://en.wikipedia.org/wiki/List_of_Indian_Premier_League_seasons_and_results",
     ]
 
     web_loader = WebBaseLoader(
