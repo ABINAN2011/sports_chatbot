@@ -180,15 +180,8 @@ async def chat_endpoint(query: Query):
     parser = StrOutputParser()
     answer = parser.parse(response["result"])
 
-    if not response["source_documents"]:
-        return {"answer": "Sorry, I couldn’t find anything relevant.", "sources": []}
-
-    sources = [
-        {"source": doc.metadata.get("source", "Unknown")}
-        for doc in response["source_documents"]
-    ]
+    
 
     return {
         "answer": answer,
-        "sources": sources
     }
