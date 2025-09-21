@@ -382,16 +382,7 @@ export default function ResponsiveSportsChatBot() {
               </div>
 
               
-              <div className="flex items-center justify-between">
-                <span className="text-xs">Streaming</span>
-                <button
-                  onClick={() => setUseStreaming(!useStreaming)}
-                  className={`p-1.5 rounded-lg transition-colors ${useStreaming ? 'bg-green-600' : 'bg-gray-600'}`}
-                >
-                  <MessageSquare size={12} />
-                </button>
-              </div>
-
+              
               
               <div className="flex items-center justify-between">
                 <span className="text-xs">Font Size</span>
