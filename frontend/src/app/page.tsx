@@ -24,6 +24,7 @@ export default function ResponsiveSportsChatBot() {
   const [connectionStatus, setConnectionStatus] = useState("online");
   const [darkMode, setDarkMode] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [useStreaming, setUseStreaming] = useState(false);
   const [fontSize, setFontSize] = useState("text-sm");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -65,9 +66,99 @@ export default function ResponsiveSportsChatBot() {
     }
   };
 
+  const sendStreamingMessage = async (queryText: string) => {
+    const userMessage: Message = { 
+      role: "user", 
+      content: queryText,
+      timestamp: new Date().toLocaleTimeString()
+    };
+    setMessages((prev) => [...prev, userMessage]);
+    setInput("");
+    setIsLoading(true);
+    setConnectionStatus("connecting");
+
+    
+    const botMessageId = Date.now();
+    const initialBotMessage: Message = {
+      role: "bot",
+      content: "",
+      timestamp: new Date().toLocaleTimeString()
+    };
+    setMessages((prev) => [...prev, { ...initialBotMessage, content: "" }]);
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/chat/stream", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          query: queryText,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let streamedContent = "";
+
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value);
+          streamedContent += chunk;
+          
+          
+          setMessages((prev) => {
+            const newMessages = [...prev];
+            const lastIndex = newMessages.length - 1;
+            if (newMessages[lastIndex].role === "bot") {
+              newMessages[lastIndex] = {
+                ...newMessages[lastIndex],
+                content: streamedContent
+              };
+            }
+            return newMessages;
+          });
+        }
+      }
+
+      setConnectionStatus("online");
+      playNotificationSound();
+      
+    } catch (error) {
+      console.error("Streaming Error:", error);
+      
+      
+      setMessages((prev) => {
+        const newMessages = [...prev];
+        const lastIndex = newMessages.length - 1;
+        if (newMessages[lastIndex].role === "bot") {
+          newMessages[lastIndex] = {
+            ...newMessages[lastIndex],
+            content: "Unable to connect to the sports knowledge base. Please ensure the backend server is running."
+          };
+        }
+        return newMessages;
+      });
+      setConnectionStatus("offline");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const sendMessage = async (text?: string) => {
     const queryText = text || input;
     if (!queryText.trim() || isLoading) return;
+
+    if (useStreaming) {
+      return sendStreamingMessage(queryText);
+    }
 
     const userMessage: Message = { 
       role: "user", 
@@ -79,15 +170,27 @@ export default function ResponsiveSportsChatBot() {
     setIsLoading(true);
     setConnectionStatus("connecting");
 
-    // Simulate API call since we can't actually make HTTP requests
     try {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const response = await fetch("http://127.0.0.1:8000/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          query: queryText,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
       
       const botMessage: Message = {
         role: "bot",
-        content: `I'd be happy to help you with information about "${queryText}". This is a simulated response since we can't connect to the actual sports API in this environment. In a real implementation, this would query your sports knowledge database and return comprehensive information.`,
-        sources: ["Sports Database", "Historical Records"],
+        content: data.answer || "I couldn't find a relevant answer to your question.",
+        sources: data.sources?.map((s: any) => s.source || "Unknown") || [],
         timestamp: new Date().toLocaleTimeString()
       };
       
@@ -98,7 +201,24 @@ export default function ResponsiveSportsChatBot() {
     } catch (error) {
       console.error("API Error:", error);
       
-      const errorMessage = "Unable to connect to the sports knowledge base. This is a demo version.";
+      let errorMessage = "Unable to connect to the sports knowledge base. ";
+      
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        errorMessage += "Please ensure:\n\n1. Backend server is running (uvicorn main:app --reload)\n2. Server is accessible at http://127.0.0.1:8000\n3. CORS is properly configured";
+        setConnectionStatus("offline");
+      } else if (error instanceof Error) {
+        if (error.message.includes('404')) {
+          errorMessage += "Service endpoint not found. Please check if the backend server is running.";
+        } else if (error.message.includes('500')) {
+          errorMessage += "Server error occurred. Please try again in a moment.";
+        } else {
+          errorMessage += `Connection error: ${error.message}`;
+        }
+        setConnectionStatus("offline");
+      } else {
+        errorMessage += "An unexpected error occurred. Please try again.";
+        setConnectionStatus("offline");
+      }
 
       setMessages((prev) => [
         ...prev,
@@ -108,7 +228,6 @@ export default function ResponsiveSportsChatBot() {
           timestamp: new Date().toLocaleTimeString()
         },
       ]);
-      setConnectionStatus("offline");
     } finally {
       setIsLoading(false);
     }
@@ -171,7 +290,7 @@ export default function ResponsiveSportsChatBot() {
 
   return (
     <div className={`flex flex-col h-screen overflow-hidden transition-all duration-300 ${themeClasses}`}>
-      {/* Mobile Sidebar Overlay */}
+      
       {sidebarOpen && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
@@ -180,7 +299,7 @@ export default function ResponsiveSportsChatBot() {
       )}
       
       <div className="flex flex-1 relative overflow-hidden">
-        {/* Sidebar */}
+        
         <aside
           className={`fixed lg:static top-0 left-0 h-full w-full sm:w-80 lg:w-72 xl:w-80 ${
             darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
@@ -188,7 +307,7 @@ export default function ResponsiveSportsChatBot() {
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
         >
           
-          {/* Sidebar Header */}
+          
           <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center gap-2">
               <MessageSquare size={20} className="text-teal-600" />
@@ -204,22 +323,10 @@ export default function ResponsiveSportsChatBot() {
             </button>
           </div>
 
-          {/* Connection Status */}
-          <div className="p-4">
-            <div className={`flex items-center gap-2 text-sm ${
-              connectionStatus === 'online' ? 'text-green-600' : 
-              connectionStatus === 'offline' ? 'text-red-600' : 'text-yellow-600'
-            }`}>
-              <div className={`w-2 h-2 rounded-full ${
-                connectionStatus === 'online' ? 'bg-green-600' : 
-                connectionStatus === 'offline' ? 'bg-red-600' : 'bg-yellow-600'
-              }`} />
-              <span className="capitalize">{connectionStatus}</span>
-            </div>
-          </div>
           
-          {/* Quick Questions */}
-          <nav className="flex-1 px-4 pb-4">
+          
+          
+          <nav className="flex-1 px-4 pb-4 mt-30">
             <h2 className={`text-xs sm:text-sm font-semibold mb-3 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
               QUICK QUESTIONS
             </h2>
@@ -244,7 +351,7 @@ export default function ResponsiveSportsChatBot() {
             </div>
           </nav>
 
-          {/* Settings */}
+          
           <div className={`mx-4 mb-4 p-3 sm:p-4 rounded-xl ${darkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
             <div className="flex items-center gap-2 mb-3">
               <Settings size={14} />
@@ -252,7 +359,7 @@ export default function ResponsiveSportsChatBot() {
             </div>
             
             <div className="space-y-3">
-              {/* Dark Mode Toggle */}
+              
               <div className="flex items-center justify-between">
                 <span className="text-xs">Dark Mode</span>
                 <button
@@ -263,7 +370,7 @@ export default function ResponsiveSportsChatBot() {
                 </button>
               </div>
 
-              {/* Sound Toggle */}
+             
               <div className="flex items-center justify-between">
                 <span className="text-xs">Sound</span>
                 <button
@@ -274,7 +381,18 @@ export default function ResponsiveSportsChatBot() {
                 </button>
               </div>
 
-              {/* Font Size */}
+              
+              <div className="flex items-center justify-between">
+                <span className="text-xs">Streaming</span>
+                <button
+                  onClick={() => setUseStreaming(!useStreaming)}
+                  className={`p-1.5 rounded-lg transition-colors ${useStreaming ? 'bg-green-600' : 'bg-gray-600'}`}
+                >
+                  <MessageSquare size={12} />
+                </button>
+              </div>
+
+              
               <div className="flex items-center justify-between">
                 <span className="text-xs">Font Size</span>
                 <select
@@ -290,7 +408,7 @@ export default function ResponsiveSportsChatBot() {
             </div>
           </div>
 
-          {/* Action Buttons */}
+       
           <div className="p-4 space-y-2">
             <button
               onClick={exportChat}
@@ -320,9 +438,9 @@ export default function ResponsiveSportsChatBot() {
           </div>
         </aside>
 
-        {/* Main Chat Area */}
+        
         <div className={`flex flex-col flex-1 min-w-0 ${themeClasses}`}>
-          {/* Header */}
+          
           <header className={`flex-shrink-0 ${
             darkMode 
               ? 'bg-gradient-to-r from-teal-800 to-blue-800' 
@@ -336,20 +454,18 @@ export default function ResponsiveSportsChatBot() {
                 >
                   <Menu size={18} />
                 </button>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 xl:ml-150 sm:ml-30 h-25">
                   <MessageSquare size={20} className="hidden sm:block" />
                   <div>
-                    <h1 className="text-lg sm:text-xl lg:text-2xl font-bold">Sports Assistant</h1>
-                    <p className="text-xs sm:text-sm opacity-80 hidden sm:block">
-                      Your AI-powered sports companion
-                    </p>
+                    <h1 className="text-lg sm:text-2xl lg:text-3xl  font-bold">Sports Assistant</h1>
+            
                   </div>
                 </div>
               </div>
             </div>
           </header>
 
-          {/* Messages Container */}
+          
           <div className={`flex-1 overflow-y-auto p-2 sm:p-4 space-y-3 sm:space-y-4 ${themeClasses}`}>
             {messages.map((msg, i) => (
               <div
@@ -358,7 +474,7 @@ export default function ResponsiveSportsChatBot() {
                   msg.role === "user" ? "flex-row-reverse" : "flex-row"
                 }`}
               >
-                {/* Avatar */}
+                
                 <div className={`flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center ${
                   msg.role === "user" 
                     ? (darkMode ? 'bg-teal-600' : 'bg-teal-500')
@@ -367,7 +483,7 @@ export default function ResponsiveSportsChatBot() {
                   {msg.role === "bot" ? <Bot size={14} /> : <User size={14} />}
                 </div>
 
-                {/* Message Content */}
+              
                 <div className={`group relative max-w-[85%] sm:max-w-[75%] lg:max-w-[70%] ${
                   msg.role === "user" ? "text-right" : "text-left"
                 }`}>
@@ -384,21 +500,9 @@ export default function ResponsiveSportsChatBot() {
                       {msg.content}
                     </div>
 
-                    {/* Sources */}
-                    {msg.sources && msg.sources.length > 0 && (
-                      <div className="mt-3 pt-2 border-t border-gray-300 dark:border-gray-600">
-                        <p className="text-xs font-medium mb-1">Sources:</p>
-                        <div className="text-xs opacity-75">
-                          {msg.sources.map((source, idx) => (
-                            <span key={idx} className="inline-block mr-2 mb-1 px-2 py-1 bg-black bg-opacity-10 rounded">
-                              {source}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                    
 
-                    {/* Message Actions */}
+                  
                     <div className={`opacity-0 group-hover:opacity-100 transition-opacity mt-2 flex items-center gap-2 text-xs ${
                       msg.role === "user" ? "justify-end" : "justify-start"
                     }`}>
@@ -416,7 +520,7 @@ export default function ResponsiveSportsChatBot() {
               </div>
             ))}
 
-            {/* Loading Indicator */}
+            
             {isLoading && (
               <div className="flex items-center gap-2 sm:gap-3">
                 <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center ${
@@ -440,7 +544,7 @@ export default function ResponsiveSportsChatBot() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input Area */}
+        
           <div className={`flex-shrink-0 border-t p-3 sm:p-4 ${
             darkMode 
               ? 'bg-gray-800 border-gray-700' 
@@ -484,12 +588,6 @@ export default function ResponsiveSportsChatBot() {
               </button>
             </div>
             
-            {/* Mobile hint */}
-            <div className="mt-2 text-center">
-              <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                Press Enter to send, Shift + Enter for new line
-              </p>
-            </div>
           </div>
         </div>
       </div>
