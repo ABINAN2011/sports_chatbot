@@ -105,7 +105,7 @@ export default function EnhancedChatBot() {
     } catch (error) {
       console.error("API Error:", error);
       
-      let errorMessage = "❌ Unable to connect to the sports knowledge base. ";
+      let errorMessage = " Unable to connect to the sports knowledge base. ";
       
       if (axios.isAxiosError(error)) {
         if (error.code === 'ECONNABORTED') {
@@ -145,7 +145,7 @@ export default function EnhancedChatBot() {
   const clearChat = () => {
     setMessages([{ 
       role: "bot", 
-      content: "Chat cleared! 🧹 Ready to answer your sports questions. What would you like to know?",
+      content: "Chat cleared!",
       timestamp: new Date().toLocaleTimeString()
     }]);
     playNotificationSound();
@@ -211,7 +211,7 @@ export default function EnhancedChatBot() {
           } border-r p-4 flex flex-col transform transition-all duration-300 z-50 shadow-lg
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}
         >
-          {/* Sidebar Header */}
+          
           <div className="flex items-center justify-between mb-6">
             <h1 className={`text-lg font-bold ml-10 mt-7 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
               Sports Assistant
@@ -226,9 +226,9 @@ export default function EnhancedChatBot() {
 
        
 
-          {/* Quick Questions */}
+          
           <nav className="flex flex-col gap-3 flex-1  mt-40">
-            <h2 className={`text-sm font-semibold mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+            <h2 className={`text-sm font-semibold mb-2 ml-3 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
               QUICK QUESTIONS
             </h2>
             <div className="space-y-2 max-h-64 ">
@@ -252,14 +252,14 @@ export default function EnhancedChatBot() {
             </div>
           </nav>
 
-          {/* Settings Panel */}
+        
           <div className={`mt-6 p-4 rounded-xl ${darkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
             <div className="flex items-center gap-2 mb-3">
               <Settings size={16} />
               <span className="text-sm font-medium">Settings</span>
             </div>
             
-            {/* Theme Toggle */}
+            
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs">Dark Mode</span>
               <button
@@ -270,7 +270,7 @@ export default function EnhancedChatBot() {
               </button>
             </div>
 
-            {/* Sound Toggle */}
+            
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs">Notifications</span>
               <button
@@ -281,7 +281,7 @@ export default function EnhancedChatBot() {
               </button>
             </div>
 
-            {/* Font Size */}
+           
             <div className="flex items-center justify-between">
               <span className="text-xs">Font Size</span>
               <select
@@ -296,7 +296,7 @@ export default function EnhancedChatBot() {
             </div>
           </div>
 
-          {/* Action Buttons */}
+          
           <div className="mt-4 space-y-2">
             <button
               onClick={exportChat}
@@ -326,9 +326,9 @@ export default function EnhancedChatBot() {
           </div>
         </aside>
 
-        {/* Main Chat Area */}
+        
         <div className="flex flex-col  flex-1 min-w-0">
-          {/* Enhanced Header */}
+          
           <header className={`${
             darkMode 
               ? 'bg-gradient-to-r from-teal-800 to-blue-800' 
@@ -355,7 +355,7 @@ export default function EnhancedChatBot() {
             </div>
           </header>
 
-          {/* Messages Area */}
+          
           <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-4">
             {messages.map((msg, i) => (
               <div
@@ -364,7 +364,7 @@ export default function EnhancedChatBot() {
                   msg.role === "user" ? "flex-row-reverse" : "flex-row"
                 }`}
               >
-                {/* Avatar */}
+                
                 <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
                   msg.role === "user" 
                     ? (darkMode ? 'bg-teal-600' : 'bg-teal-500')
