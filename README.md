@@ -47,17 +47,17 @@ graph TD
     C --> E[Groq LLM API]
     E -->|Streamed Response| A
 
-🚀 Quick Start
-🔧 Requirements
+## 🚀 Quick Start
 
-Python ≥ 3.9
+### 🔧 Requirements
+- **Python** ≥ 3.9  
+- **Node.js** ≥ 18  
+- **Groq API Key**
 
-Node.js ≥ 18
+---
 
-Groq API key
-
-🧩 1. Clone the Repository
-
+### 🧩 1. Clone the Repository
+```bash
 git clone https://github.com/<your-username>/sports-chatbot.git
 cd sports-chatbot
 
