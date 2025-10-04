@@ -55,12 +55,12 @@ graph TD
 
 ---
 
-### 🧩 1. Clone the Repository
+ 🧩 1. Clone the Repository
 ```bash
 git clone https://github.com/<your-username>/sports-chatbot.git
 cd sports-chatbot
 ```
-###🧠 2. Backend Setup (FastAPI)
+🧠 2. Backend Setup (FastAPI)
 
 ```bash
 cd backend
@@ -69,7 +69,7 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-###🔐 Configure Environment Variables
+🔐 Configure Environment Variables
 
 Create a .env file inside the backend folder:
 
@@ -77,13 +77,13 @@ Create a .env file inside the backend folder:
 GROQ_API_KEY=your-groq-api-key
 ```
 
-###▶️ Run the Backend Server
+▶️ Run the Backend Server
 
 ```bash
 uvicorn main:app --reload
 ```
 
-###💻 3. Frontend Setup (Next.js)
+💻 3. Frontend Setup (Next.js)
 
 ```bash
 cd frontend
@@ -91,7 +91,7 @@ npm install
 npm run dev
 ```
 
-###⚡ API Endpoints
+⚡ API Endpoints
 
 | Endpoint  | Method   | Description                       |
 | --------- | -------- | --------------------------------- |
