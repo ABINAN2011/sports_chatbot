@@ -36,7 +36,6 @@ Developed using a **FastAPI backend** and a **Next.js frontend** with a clean, r
 
 ---
 
-```markdown
 ## 🧠 Architecture Overview
 
 ```mermaid
@@ -45,7 +44,8 @@ graph TD
     B --> C{RAG Pipeline}
     C --> D[FAISS Vector DB]
     C --> E[Groq LLM API]
-    E -->|Streamed Response| A
+    ** E -->|Streamed Response| A **
+
 
 ## 🚀 Quick Start
 
