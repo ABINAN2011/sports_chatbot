@@ -1,9 +1,10 @@
 # 🏅 Sports Chatbot – AI-Powered Conversational Assistant
 
 <p align="center">
-  <img src="C:\Users\kabin\Pictures\Screenshots\Screenshot 2025-10-04 134141.png" alt="Sports Chatbot" width="100%" />
-  <img src="C:\Users\kabin\Pictures\Screenshots\Screenshot 2025-10-04 134347.png" alt="Chatbot Demo" width="80%" />
+  <img src="C:\Users\kabin\Pictures\Screenshots\Screenshot 2025-10-04 134141.png" alt="Chatbot Demo" width="45%" />
+  <img src="C:\Users\kabin\Pictures\Screenshots\Screenshot 2025-10-04 134347.png" alt="Chatbot UI" width="45%" />
 </p>
+
 
 An intelligent **AI chatbot** built for sports fans and analysts 🧠⚽.  
 It leverages **LangChain**, **FAISS**, and **Groq LLM** to deliver **fast, context-aware answers** based on your custom sports data.  
