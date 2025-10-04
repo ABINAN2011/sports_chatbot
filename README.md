@@ -46,3 +46,18 @@ graph TD
     C --> D[FAISS Vector DB]
     C --> E[Groq LLM API]
     E -->|Streamed Response| A
+
+🚀 Quick Start
+🔧 Requirements
+
+Python ≥ 3.9
+
+Node.js ≥ 18
+
+Groq API key
+
+🧩 1. Clone the Repository
+
+git clone https://github.com/<your-username>/sports-chatbot.git
+cd sports-chatbot
+
