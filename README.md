@@ -1,8 +1,8 @@
 # 🏅 Sports Chatbot – AI-Powered Conversational Assistant
 
 <p align="center">
-  <img src="C:\Users\kabin\Pictures\Screenshots\Screenshot 2025-10-04 134141.png" alt="Chatbot Demo" width="45%" />
-  <img src="C:\Users\kabin\Pictures\Screenshots\Screenshot 2025-10-04 134347.png" alt="Chatbot UI" width="45%" />
+  <img src="docs/demo1.png"" alt="Chatbot Demo" width="45%" />
+  <img src="docs/demo2.png"" alt="Chatbot UI" width="45%" />
 </p>
 
 
