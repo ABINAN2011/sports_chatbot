@@ -44,9 +44,8 @@ graph TD
     B --> C{RAG Pipeline}
     C --> D[FAISS Vector DB]
     C --> E[Groq LLM API]
-    ** E -->|Streamed Response| A **
-
-
+    E -->|Streamed Response| A
+```
 ## 🚀 Quick Start
 
 ### 🔧 Requirements
@@ -60,4 +59,46 @@ graph TD
 ```bash
 git clone https://github.com/<your-username>/sports-chatbot.git
 cd sports-chatbot
+```
+###🧠 2. Backend Setup (FastAPI)
+
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+###🔐 Configure Environment Variables
+
+Create a .env file inside the backend folder:
+
+```bash
+GROQ_API_KEY=your-groq-api-key
+```
+
+###▶️ Run the Backend Server
+
+```bash
+uvicorn main:app --reload
+```
+
+###💻 3. Frontend Setup (Next.js)
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+###⚡ API Endpoints
+
+| Endpoint  | Method   | Description                       |
+| --------- | -------- | --------------------------------- |
+| `/chat`   | **POST** | Send a question to the AI chatbot |
+| `/health` | **GET**  | Health check                      |
+
+
+
+
 
