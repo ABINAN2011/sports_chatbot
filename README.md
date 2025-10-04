@@ -38,14 +38,13 @@ Developed using a **FastAPI backend** and a **Next.js frontend** with a clean, r
 
 ## 🧠 Architecture Overview
 
-```mermaid
 graph TD
     A[Frontend (Next.js)] -->|Query| B(FastAPI Backend)
     B --> C{RAG Pipeline}
     C --> D[FAISS Vector DB]
     C --> E[Groq LLM API]
     E -->|Streamed Response| A
-```
+
 
 ## 🚀 Quick Start
 
@@ -146,6 +145,51 @@ sports-chatbot/
 | **Version Control**  | Git + GitHub                 |
 
 
+# 🎥 Demo Video
+
+Check out the demo video above or explore the **live preview** below 👇
+
+
+Uploading WhatsApp Video 2025-10-02 at 05.29.08_9b91e98e.mp4…
+
+
+
+---
+
+## 🤝 Contributing
+
+Contributions are always welcome! To contribute:
+
+1. **Fork** this repository
+2. **Create** your feature branch: `git checkout -b feature/YourFeature`
+3. **Commit** your changes: `git commit -m "Add YourFeature"`
+4. **Push** to the branch: `git push origin feature/YourFeature`
+5. **Open** a Pull Request 🚀
+
+---
+
+## ❤️ Acknowledgments
+
+- **[LangChain](https://www.langchain.com/)** – For document processing pipelines  
+- **[FAISS](https://github.com/facebookresearch/faiss)** – For efficient vector search  
+- **[Groq](https://www.groq.com/)** – For fast inference and streaming  
+- **[FastAPI](https://fastapi.tiangolo.com/)** – Modern Python backend framework  
+- **[Next.js](https://nextjs.org/)** – Interactive frontend framework  
+
+---
+
+## 📜 License
+
+This project is licensed under the **MIT License** – feel free to use and modify.
+
+---
+
+## 👨‍💻 Author
+
+**Your Name**  
+AI Developer • Sports Enthusiast • Open-Source Contributor  
+
+Built with 🧠 Python, ⚡ Next.js, and ❤️ for innovation.
 
 
 
