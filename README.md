@@ -46,6 +46,7 @@ graph TD
     C --> E[Groq LLM API]
     E -->|Streamed Response| A
 ```
+
 ## 🚀 Quick Start
 
 ### 🔧 Requirements
@@ -97,6 +98,34 @@ npm run dev
 | --------- | -------- | --------------------------------- |
 | `/chat`   | **POST** | Send a question to the AI chatbot |
 | `/health` | **GET**  | Health check                      |
+
+🧱 Project Structure
+
+```bash
+
+sports-chatbot/
+├── Backend/
+│   ├── main.py               # FastAPI entry point
+│   ├── sports_data/          # Uploaded sports documents
+│   ├── vector_store/         # FAISS vector database
+│   └── .env                  # Environment variables
+│
+├── Frontend/
+│   ├── public/               # Public assets
+│   ├── src/                  # Source code (pages, components, styles)
+│   ├── .gitignore
+│   ├── biome.json
+│   ├── next-env.d.ts
+│   ├── next.config.ts
+│   ├── package-lock.json
+│   ├── package.json
+│   └── postcss.config.mjs
+│
+├── docs/                     # Screenshots and documentation
+├── .gitignore
+├── README.md
+└── requirements.txt
+```
 
 
 
