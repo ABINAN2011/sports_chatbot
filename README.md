@@ -149,8 +149,7 @@ sports-chatbot/
 
 Check out the demo video above or explore the **live preview** below 👇
 
-
-Uploading WhatsApp Video 2025-10-02 at 05.29.08_9b91e98e.mp4…
+[Demo Video](demo\demo_video.mp4)
 
 
 
@@ -186,7 +185,7 @@ This project is licensed under the **MIT License** – feel free to use and modi
 
 ## 👨‍💻 Author
 
-**Your Name**  
+**Abinan Ketheeswaram**  
 AI Developer • Sports Enthusiast • Open-Source Contributor  
 
 Built with 🧠 Python, ⚡ Next.js, and ❤️ for innovation.
