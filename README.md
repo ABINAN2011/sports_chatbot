@@ -126,6 +126,24 @@ sports-chatbot/
 ├── README.md
 └── requirements.txt
 ```
+☁️ Environment Variables
+
+| Variable            | Description                               |
+| ------------------- | ----------------------------------------- |
+| `GROQ_API_KEY`      | API key for Groq LLM                      |
+| `MODEL_NAME`        | Groq model name (default: `mixtral-8x7b`) |
+| `VECTOR_STORE_PATH` | FAISS index storage path                  |
+
+🧠 Tech Stack
+
+| Layer                | Technologies                 |
+| -------------------- | ---------------------------- |
+| **Frontend**         | Next.js, Tailwind CSS, Axios |
+| **Backend**          | FastAPI, LangChain           |
+| **Vector DB**        | FAISS                        |
+| **LLM**              | Groq API                     |
+| **Containerization** | Docker                       |
+| **Version Control**  | Git + GitHub                 |
 
 
 
